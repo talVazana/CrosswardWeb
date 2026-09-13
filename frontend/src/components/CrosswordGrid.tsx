@@ -3,14 +3,14 @@ import type { PuzzleSchema, ClueMetadata } from '../domain/puzzle';
 
 interface CrosswordGridProps {
   puzzle: PuzzleSchema;
+  gridValues: string[][];
+  onGridChange: (newGrid: string[][]) => void;
 }
 
 type Direction = 'horizontal' | 'vertical';
 
-export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle }) => {
-  const [gridValues, setGridValues] = useState<string[][]>(() => 
-    Array(puzzle.rows).fill(null).map(() => Array(puzzle.cols).fill(''))
-  );
+export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues, onGridChange }) => {
+
   
   const [selectedCell, setSelectedCell] = useState<{r: number, c: number} | null>(null);
   const [currentDirection, setCurrentDirection] = useState<Direction>('horizontal');
@@ -121,7 +121,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle }) => {
     const newVals = [...gridValues];
     newVals[r] = [...newVals[r]];
     newVals[r][c] = val;
-    setGridValues(newVals);
+    onGridChange(newVals);
 
     if (val !== '') {
       moveToNextCell(r, c);

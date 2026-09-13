@@ -15,6 +15,8 @@
 | MS10 | Done | Interactive Player Grid |
 | MS11 | Done | Player Identity |
 | MS12 | Done | Room Creation |
+| MS13 | Done | Room Lobby |
+| MS14 | Done | Player Room State |
 
 ## Notes
 - Git repo initialized.
