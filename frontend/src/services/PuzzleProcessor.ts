@@ -54,6 +54,8 @@ export class RenderPuzzleProcessor implements PuzzleProcessor {
   }
 }
 
+import mockFixture from '../fixtures/a_output.json';
+
 export function getPuzzleProcessor(): PuzzleProcessor {
   const mode = import.meta.env.VITE_PUZZLE_PROCESSOR_MODE;
   if (mode === 'render') {
@@ -63,11 +65,6 @@ export function getPuzzleProcessor(): PuzzleProcessor {
     }
     return new RenderPuzzleProcessor(url);
   } else {
-    // Return mock processor by default during dev
-    // Dynamically loading the fixture might be tricky in sync, 
-    // but we can import it or pass it. 
-    // To avoid coupling to UI bundle, we will just fetch it or hardcode for now.
-    // For simplicity, we just throw if not implemented correctly or provide a basic stub.
-    throw new Error('Mock processing should be injected or handled via a factory with data');
+    return new MockPuzzleProcessor(mockFixture);
   }
 }
