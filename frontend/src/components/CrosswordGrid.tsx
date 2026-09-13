@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { PuzzleSchema, ClueMetadata } from '../domain/puzzle';
 import { GameEngine } from '../domain/game/GameEngine';
+import { getPlayerColor } from '../utils/colors';
 
 interface CrosswordGridProps {
   puzzle: PuzzleSchema;
@@ -232,14 +233,6 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
                 />
               );
             }
-
-            // A simple hash function for player colors
-            const getPlayerColor = (id: string) => {
-              const colors = ['#fca5a5', '#fdba74', '#fcd34d', '#bef264', '#86efac', '#67e8f9', '#93c5fd', '#c4b5fd', '#f9a8d4'];
-              let h = 0;
-              for(let i=0; i<id.length; i++) h = (h + id.charCodeAt(i)) % colors.length;
-              return colors[h];
-            };
 
             const bgColor = solvedState ? getPlayerColor(solvedState.winnerId) : selected ? '#fef08a' : highlighted ? '#dbeafe' : '#ffffff';
 

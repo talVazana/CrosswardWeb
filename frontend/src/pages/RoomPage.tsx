@@ -5,6 +5,7 @@ import { RoomService } from '../services/RoomService';
 import { usePlayer } from '../domain/player/PlayerContext';
 import { GameEngine } from '../domain/game/GameEngine';
 import type { RoomState } from '../domain/game/GameEngine';
+import { getPlayerColor } from '../utils/colors';
 
 const RoomPage: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -21,8 +22,13 @@ const RoomPage: React.FC = () => {
       navigate('/');
       return;
     }
+    
+    if (player && r.playerScores[player.id] === undefined) {
+      r.playerScores[player.id] = 0;
+      RoomService.updateRoom(r);
+    }
     setRoom(r);
-  }, [roomId, navigate]);
+  }, [roomId, navigate, player]);
 
   useEffect(() => {
     if (!room || !player) return;
@@ -133,7 +139,9 @@ const RoomPage: React.FC = () => {
 
   return (
     <div className="p-4 flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-2">חדר: {roomId}</h1>
+      <h1 className="text-3xl font-bold mb-2 text-blue-900 drop-shadow-sm bg-white/70 px-6 py-2 rounded-2xl">
+        חדר: {room?.roomName || roomId}
+      </h1>
       {room && (
         <div className={`mb-4 text-sm px-4 py-2 rounded font-medium ${room.status === 'CLOSED' ? 'bg-red-100 text-red-800 text-lg' : 'bg-blue-50 text-blue-800'}`}>
           מצב החדר: {room.status === 'CLOSED' ? 'המשחק הסתיים (Game Over)' : room.status}
@@ -182,8 +190,11 @@ const RoomPage: React.FC = () => {
               <ul className="space-y-2">
                 {Object.entries(room.playerScores).sort((a,b)=>b[1]-a[1]).map(([pid, score]) => (
                   <li key={pid} className="flex justify-between items-center bg-gray-50 p-2 rounded border">
-                    <span className="font-semibold truncate">{pid === player.id ? `${pid} (אתה)` : pid}</span>
-                    <span className="font-bold text-blue-600">{score} נק'</span>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: getPlayerColor(pid) }}></div>
+                      <span className="font-semibold truncate">{pid === player.id ? `${pid} (אתה)` : pid}</span>
+                    </div>
+                    <span className="font-bold text-blue-600 ml-2">{score} נק'</span>
                   </li>
                 ))}
               </ul>

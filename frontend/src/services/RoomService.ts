@@ -13,10 +13,11 @@ export class RoomService {
     return this.getRooms().find(r => r.roomId === roomId);
   }
 
-  static createRoom(puzzle: PuzzleSchema, imageUrl?: string): RoomState {
+  static createRoom(puzzle: PuzzleSchema, imageUrl?: string, roomName?: string): RoomState {
     const rooms = this.getRooms();
     const newRoom: RoomState = {
       roomId: Math.random().toString(36).substring(2, 9),
+      roomName,
       status: 'OPEN',
       puzzle,
       authoritativeSolutions: {},

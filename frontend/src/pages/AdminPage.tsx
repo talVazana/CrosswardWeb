@@ -6,6 +6,7 @@ import type { PuzzleSchema } from '../domain/puzzle';
 
 const AdminPage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [roomName, setRoomName] = useState('');
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
   const [puzzle, setPuzzle] = useState<PuzzleSchema | null>(null);
@@ -42,10 +43,8 @@ const AdminPage: React.FC = () => {
 
   const handleCreateRoom = () => {
     if (!puzzle) return;
-    // We should ideally convert the blob to base64 or upload to storage, 
-    // but for local MS12 demo, we'll store a mock URL.
-    const room = RoomService.createRoom(puzzle, 'local_image_ref');
-    navigate(`/room/${room.roomId}`);
+    const room = RoomService.createRoom(puzzle, 'local_image_ref', roomName || 'חדר ללא שם');
+    navigate(`/admin/room/${room.roomId}`);
   };
 
   return (
@@ -81,9 +80,20 @@ const AdminPage: React.FC = () => {
           <p>עמודות: {puzzle.cols}</p>
           <p>הגדרות (Clues): {puzzle.clues.length}</p>
           
+          <div className="mt-4 mb-4">
+            <label className="block text-sm font-bold mb-1">שם החדר:</label>
+            <input 
+              type="text" 
+              value={roomName}
+              onChange={e => setRoomName(e.target.value)}
+              placeholder="למשל: תשבץ שבת"
+              className="w-full p-2 border rounded"
+            />
+          </div>
+
           <button 
             onClick={handleCreateRoom}
-            className="mt-4 px-4 py-2 bg-green-600 text-white rounded font-bold hover:bg-green-700"
+            className="px-4 py-2 bg-green-600 text-white rounded font-bold hover:bg-green-700"
           >
             צור חדר והתחל משחק
           </button>
@@ -95,7 +105,7 @@ const AdminPage: React.FC = () => {
         <div className="space-y-2">
           {RoomService.getRooms().map(room => (
             <div key={room.roomId} className="flex justify-between items-center p-3 border rounded">
-              <span>חדר: {room.roomId} ({room.status})</span>
+              <span>חדר: {room.roomName || room.roomId} ({room.status})</span>
               <button
                 onClick={() => navigate(`/admin/room/${room.roomId}`)}
                 className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"

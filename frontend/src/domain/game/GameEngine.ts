@@ -30,6 +30,7 @@ export interface SolvedClue {
 
 export interface RoomState {
     roomId: RoomId;
+    roomName?: string;
     status: 'OPEN' | 'ACTIVE' | 'CLOSED';
     puzzle: PuzzleSchema;
     authoritativeSolutions: Record<string, string>; // "\_\"
