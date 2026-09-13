@@ -132,9 +132,24 @@ const AdminRoomPage: React.FC = () => {
           </ul>
           <button 
             onClick={handlePublish}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 ml-2"
           >
             פרסם טיוטות (Publish)
+          </button>
+          <button 
+            onClick={() => {
+              if (window.confirm("האם לסיים את המשחק ולסגור את החדר?")) {
+                let roomNow = { ...room };
+                roomNow = GameEngine.closeRoom(roomNow);
+                RoomService.updateRoom(roomNow);
+                setRoom(roomNow);
+                alert("החדר נסגר.");
+              }
+            }}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mt-2 block"
+            disabled={room.status === 'CLOSED'}
+          >
+            סגור חדר (End Game)
           </button>
         </div>
 

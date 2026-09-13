@@ -24,6 +24,9 @@
 | MS19 | Done | Automatic Approval |
 | MS20 | Done | Scoring Engine |
 | MS21 | Done | Solved Clue Ownership |
+| MS22 | Done | Game Reveal |
+| MS23 | Done | End Game |
+| MS24 | Done | Admin Room |
 
 ## Notes
 - Git repo initialized.

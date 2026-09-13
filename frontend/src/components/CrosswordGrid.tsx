@@ -7,12 +7,13 @@ interface CrosswordGridProps {
   gridValues: string[][];
   onGridChange: (newGrid: string[][]) => void;
   onSubmitClue?: (clue: ClueMetadata, horizontal: boolean) => void;
+  onRevealClue?: (clue: ClueMetadata, horizontal: boolean) => void;
   roomState?: import('../domain/game/GameEngine').RoomState;
 }
 
 type Direction = 'horizontal' | 'vertical';
 
-export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues, onGridChange, onSubmitClue, roomState }) => {
+export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues, onGridChange, onSubmitClue, onRevealClue, roomState }) => {
 
   
   const [selectedCell, setSelectedCell] = useState<{r: number, c: number} | null>(null);
@@ -240,14 +241,24 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
       {activeClue && (
         <div className="mt-4 p-3 bg-white rounded shadow text-lg font-medium flex items-center justify-between w-full max-w-md gap-4">
           <span>רמז פעיל: {activeClue.clue_number} {currentDirection === 'horizontal' ? 'מאוזן' : 'מאונך'}</span>
-          {onSubmitClue && (
-            <button 
-              onClick={() => onSubmitClue(activeClue, currentDirection === 'horizontal')}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded text-sm font-bold shadow transition-colors"
-            >
-              שלח
-            </button>
-          )}
+          <div className="flex gap-2">
+            {onRevealClue && (
+              <button 
+                onClick={() => onRevealClue(activeClue, currentDirection === 'horizontal')}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded text-sm font-bold shadow transition-colors"
+              >
+                גלה
+              </button>
+            )}
+            {onSubmitClue && (
+              <button 
+                onClick={() => onSubmitClue(activeClue, currentDirection === 'horizontal')}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded text-sm font-bold shadow transition-colors"
+              >
+                שלח
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

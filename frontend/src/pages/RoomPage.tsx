@@ -94,6 +94,35 @@ const RoomPage: React.FC = () => {
     alert(`נשלח פתרון: ${submission.solution}\nסטטוס: ${submission.status}`);
   };
 
+  const handleRevealClue = (clue: import('../domain/puzzle').ClueMetadata, horizontal: boolean) => {
+    if (!room || !player) return;
+    const key = `${clue.clue_number}_${horizontal}`;
+    const auth = room.authoritativeSolutions[key];
+    if (!auth) {
+      alert("רמז זה טרם פורסם על ידי המנהל, לא ניתן לגלות.");
+      return;
+    }
+
+    const length = GameEngine.getClueLength(room.puzzle, clue.row, clue.col, horizontal);
+    
+    // Fill the player's grid with the authoritative solution
+    const newGrid = [...gridValues];
+    for (let i = 0; i < length; i++) {
+      const r = horizontal ? clue.row : clue.row + i;
+      const c = horizontal ? clue.col - i : clue.col;
+      newGrid[r] = [...newGrid[r]];
+      newGrid[r][c] = auth[i] || '';
+    }
+    handleGridChange(newGrid);
+
+    // Track 0 points
+    let roomNow = RoomService.getRoom(room.roomId) || room;
+    roomNow = GameEngine.revealClue(player.id, clue.clue_number, horizontal, roomNow);
+    RoomService.updateRoom(roomNow);
+    setRoom(roomNow);
+    alert(`רמז נחשף. לא יוענקו עליו נקודות.`);
+  };
+
   if (!player) {
     return (
       <div className="p-4 text-center text-red-600 font-bold text-xl mt-10">
@@ -106,11 +135,25 @@ const RoomPage: React.FC = () => {
     <div className="p-4 flex flex-col items-center">
       <h1 className="text-2xl font-bold mb-2">חדר: {roomId}</h1>
       {room && (
-        <div className="mb-4 text-sm bg-blue-50 px-4 py-2 rounded text-blue-800 font-medium">
-          מצב החדר: {room.status}
+        <div className={`mb-4 text-sm px-4 py-2 rounded font-medium ${room.status === 'CLOSED' ? 'bg-red-100 text-red-800 text-lg' : 'bg-blue-50 text-blue-800'}`}>
+          מצב החדר: {room.status === 'CLOSED' ? 'המשחק הסתיים (Game Over)' : room.status}
         </div>
       )}
       
+      {room && room.status === 'CLOSED' && (
+        <div className="mb-6 p-6 border-4 border-yellow-400 bg-yellow-50 rounded-lg text-center shadow-lg w-full max-w-2xl">
+          <h2 className="text-3xl font-bold mb-4 text-yellow-700">המנצחים!</h2>
+          <ul className="text-xl">
+            {Object.entries(room.playerScores).sort((a,b)=>b[1]-a[1]).map(([pid, score], idx) => (
+              <li key={pid} className="mb-2">
+                #{idx + 1}: {pid === player.id ? `${pid} (אתה)` : pid} עם {score} נקודות
+              </li>
+            ))}
+            {Object.keys(room.playerScores).length === 0 && <p>אין ניקוד לאף שחקן.</p>}
+          </ul>
+        </div>
+      )}
+
       {room && gridValues.length > 0 ? (
         <div className="flex flex-col md:flex-row gap-6 items-start w-full max-w-5xl">
           <div className="flex-1 overflow-auto">
@@ -119,6 +162,7 @@ const RoomPage: React.FC = () => {
               gridValues={gridValues}
               onGridChange={handleGridChange}
               onSubmitClue={handleSubmitClue}
+              onRevealClue={handleRevealClue}
               roomState={room}
             />
           </div>
