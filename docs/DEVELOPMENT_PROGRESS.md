@@ -5,7 +5,7 @@
 | MS01 | Done | Environment Discovery |
 | MS02 | Done | Repository Initialization |
 | MS03 | Done | Frontend Skeleton |
-| MS04 | Todo | Firebase Local Environment |
+| MS04 | Done | Firebase Local Environment |
 | MS05 | Todo | Local Run Orchestrator |
 
 ## Notes
