@@ -74,13 +74,24 @@ const RoomPage: React.FC = () => {
     };
 
     // Need to use GameEngine.submitClue. We'll fix the import.
-    const submission = GameEngine.submitClue(playerState, clue, horizontal, room);
+    let roomNow = RoomService.getRoom(room.roomId) || room;
+    const submission = GameEngine.submitClue(playerState, clue, horizontal, roomNow);
     if (!submission) {
       alert("אנא מלא את כל התאים במילה זו לפני השליחה.");
       return;
     }
 
-    alert(`נשלח פתרון: ${submission.solution}\nמצב ביניים נרשם (Pending).`);
+    // Evaluate submission through engine
+    roomNow = GameEngine.processSubmission(submission, roomNow);
+    RoomService.updateRoom(roomNow);
+    setRoom(roomNow);
+
+    // Save submission to log for admin
+    const subs = RoomService.getSubmissions(room.roomId);
+    subs.push(submission);
+    RoomService.saveSubmissions(room.roomId, subs);
+
+    alert(`נשלח פתרון: ${submission.solution}\nסטטוס: ${submission.status}`);
   };
 
   if (!player) {

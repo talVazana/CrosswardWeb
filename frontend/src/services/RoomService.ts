@@ -33,4 +33,33 @@ export class RoomService {
     }
     return newRoom;
   }
+
+  static updateRoom(room: RoomState): void {
+    const rooms = this.getRooms();
+    const idx = rooms.findIndex(r => r.roomId === room.roomId);
+    if (idx !== -1) {
+      rooms[idx] = room;
+      localStorage.setItem(ROOMS_KEY, JSON.stringify(rooms));
+    }
+  }
+
+  static getAdminDrafts(roomId: string): Record<string, string> {
+    const data = localStorage.getItem(`crossward_drafts_${roomId}`);
+    return data ? JSON.parse(data) : {};
+  }
+
+  static saveAdminDrafts(roomId: string, drafts: Record<string, string>): void {
+    localStorage.setItem(`crossward_drafts_${roomId}`, JSON.stringify(drafts));
+  }
+
+  // Pending submissions mock for MVP local
+  static getSubmissions(roomId: string): any[] {
+    const data = localStorage.getItem(`crossward_subs_${roomId}`);
+    return data ? JSON.parse(data) : [];
+  }
+
+  static saveSubmissions(roomId: string, subs: any[]): void {
+    localStorage.setItem(`crossward_subs_${roomId}`, JSON.stringify(subs));
+  }
 }
+

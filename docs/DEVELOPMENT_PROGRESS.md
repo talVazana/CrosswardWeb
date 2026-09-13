@@ -18,6 +18,9 @@
 | MS13 | Done | Room Lobby |
 | MS14 | Done | Player Room State |
 | MS15 | Done | Clue Submission |
+| MS16 | Done | Admin Solution Drafts |
+| MS17 | Done | Admin Publish |
+| MS18 | Done | Player Approval Workflow |
 
 ## Notes
 - Git repo initialized.

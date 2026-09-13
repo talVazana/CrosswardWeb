@@ -4,6 +4,7 @@ import Header from './components/Header';
 import RoomsPage from './pages/RoomsPage';
 import RoomPage from './pages/RoomPage';
 import AdminPage from './pages/AdminPage';
+import AdminRoomPage from './pages/AdminRoomPage';
 import { PlayerProvider } from './domain/player/PlayerContext';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
               <Route path="/" element={<RoomsPage />} />
               <Route path="/room/:roomId" element={<RoomPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/room/:roomId" element={<AdminRoomPage />} />
             </Routes>
           </main>
         </div>

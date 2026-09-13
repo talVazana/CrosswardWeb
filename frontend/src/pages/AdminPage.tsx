@@ -89,6 +89,24 @@ const AdminPage: React.FC = () => {
           </button>
         </div>
       )}
+
+      <div className="mt-8 p-4 border rounded bg-white">
+        <h2 className="font-semibold mb-4 text-xl">חדרים קיימים (ניהול)</h2>
+        <div className="space-y-2">
+          {RoomService.getRooms().map(room => (
+            <div key={room.roomId} className="flex justify-between items-center p-3 border rounded">
+              <span>חדר: {room.roomId} ({room.status})</span>
+              <button
+                onClick={() => navigate(`/admin/room/${room.roomId}`)}
+                className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
+              >
+                נהל חדר
+              </button>
+            </div>
+          ))}
+          {RoomService.getRooms().length === 0 && <p className="text-gray-500">אין חדרים כרגע.</p>}
+        </div>
+      </div>
     </div>
   );
 };
