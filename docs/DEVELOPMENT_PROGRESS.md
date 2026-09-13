@@ -6,7 +6,7 @@
 | MS02 | Done | Repository Initialization |
 | MS03 | Done | Frontend Skeleton |
 | MS04 | Done | Firebase Local Environment |
-| MS05 | Todo | Local Run Orchestrator |
+| MS05 | Done | Local Run Orchestrator |
 
 ## Notes
 - Git repo initialized.
