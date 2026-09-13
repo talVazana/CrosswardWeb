@@ -112,12 +112,33 @@ const RoomPage: React.FC = () => {
       )}
       
       {room && gridValues.length > 0 ? (
-        <CrosswordGrid 
-          puzzle={room.puzzle} 
-          gridValues={gridValues}
-          onGridChange={handleGridChange}
-          onSubmitClue={handleSubmitClue}
-        />
+        <div className="flex flex-col md:flex-row gap-6 items-start w-full max-w-5xl">
+          <div className="flex-1 overflow-auto">
+            <CrosswordGrid 
+              puzzle={room.puzzle} 
+              gridValues={gridValues}
+              onGridChange={handleGridChange}
+              onSubmitClue={handleSubmitClue}
+              roomState={room}
+            />
+          </div>
+          
+          <div className="w-full md:w-64 p-4 border rounded bg-white shadow self-start">
+            <h2 className="font-bold text-xl mb-4 border-b pb-2">ניקוד (Scores)</h2>
+            {Object.keys(room.playerScores).length === 0 ? (
+              <p className="text-gray-500">עדיין אין ניקוד.</p>
+            ) : (
+              <ul className="space-y-2">
+                {Object.entries(room.playerScores).sort((a,b)=>b[1]-a[1]).map(([pid, score]) => (
+                  <li key={pid} className="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                    <span className="font-semibold truncate">{pid === player.id ? `${pid} (אתה)` : pid}</span>
+                    <span className="font-bold text-blue-600">{score} נק'</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       ) : (
         <p>טוען תשבץ...</p>
       )}

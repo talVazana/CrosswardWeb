@@ -21,6 +21,9 @@
 | MS16 | Done | Admin Solution Drafts |
 | MS17 | Done | Admin Publish |
 | MS18 | Done | Player Approval Workflow |
+| MS19 | Done | Automatic Approval |
+| MS20 | Done | Scoring Engine |
+| MS21 | Done | Solved Clue Ownership |
 
 ## Notes
 - Git repo initialized.

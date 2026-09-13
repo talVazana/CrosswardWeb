@@ -1,16 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { PuzzleSchema, ClueMetadata } from '../domain/puzzle';
+import { GameEngine } from '../domain/game/GameEngine';
 
 interface CrosswordGridProps {
   puzzle: PuzzleSchema;
   gridValues: string[][];
   onGridChange: (newGrid: string[][]) => void;
   onSubmitClue?: (clue: ClueMetadata, horizontal: boolean) => void;
+  roomState?: import('../domain/game/GameEngine').RoomState;
 }
 
 type Direction = 'horizontal' | 'vertical';
 
-export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues, onGridChange, onSubmitClue }) => {
+export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues, onGridChange, onSubmitClue, roomState }) => {
 
   
   const [selectedCell, setSelectedCell] = useState<{r: number, c: number} | null>(null);
@@ -18,9 +20,31 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
   const [activeClue, setActiveClue] = useState<ClueMetadata | null>(null);
 
   const inputRefs = useRef<HTMLInputElement[][]>([]);
+  const [solvedCells, setSolvedCells] = useState<Record<string, { winnerId: string, char: string }>>({});
+
   useEffect(() => {
     inputRefs.current = Array(puzzle.rows).fill(null).map(() => Array(puzzle.cols).fill(null));
   }, [puzzle.rows, puzzle.cols]);
+
+  useEffect(() => {
+    if (!roomState) return;
+    const newSolved: Record<string, { winnerId: string, char: string }> = {};
+    
+    for (const key in roomState.solvedClues) {
+      const solved = roomState.solvedClues[key];
+      const clue = puzzle.clues.find(c => c.clue_number === solved.clueNumber && (solved.horizontal ? c.horizontal : c.vertical));
+      if (!clue) continue;
+      
+      const length = GameEngine.getClueLength(puzzle, clue.row, clue.col, solved.horizontal);
+      for (let i = 0; i < length; i++) {
+        const r = solved.horizontal ? clue.row : clue.row + i;
+        const c = solved.horizontal ? clue.col - i : clue.col;
+        // Don't overwrite if already solved by someone else? Actually it doesn't matter much.
+        newSolved[`${r},${c}`] = { winnerId: solved.winnerId, char: solved.solution[i] };
+      }
+    }
+    setSolvedCells(newSolved);
+  }, [roomState, puzzle]);
 
   const isBlocked = (r: number, c: number) => puzzle.matrix[r][c] === 0;
 
@@ -114,6 +138,8 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, r: number, c: number) => {
+    if (solvedCells[`${r},${c}`]) return; // Prevent changing solved cells
+
     const val = e.target.value.trim().slice(-1); // Take only the last typed character
     
     // Only allow Hebrew characters (roughly) or empty
@@ -160,6 +186,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
             const clueStart = puzzle.clues.find(cl => cl.row === r && cl.col === c);
             const selected = selectedCell?.r === r && selectedCell?.c === c;
             const highlighted = isHighlighted(r, c);
+            const solvedState = solvedCells[`${r},${c}`];
 
             if (blocked) {
               return (
@@ -170,11 +197,21 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
               );
             }
 
+            // A simple hash function for player colors
+            const getPlayerColor = (id: string) => {
+              const colors = ['#fca5a5', '#fdba74', '#fcd34d', '#bef264', '#86efac', '#67e8f9', '#93c5fd', '#c4b5fd', '#f9a8d4'];
+              let h = 0;
+              for(let i=0; i<id.length; i++) h = (h + id.charCodeAt(i)) % colors.length;
+              return colors[h];
+            };
+
+            const bgColor = solvedState ? getPlayerColor(solvedState.winnerId) : selected ? '#fef08a' : highlighted ? '#dbeafe' : '#ffffff';
+
             return (
               <div 
                 key={`${r}-${c}`} 
-                className={`relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center cursor-text transition-colors duration-200
-                  ${selected ? 'bg-yellow-300' : highlighted ? 'bg-blue-100' : 'bg-white'}`}
+                className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center cursor-text transition-colors duration-200"
+                style={{ backgroundColor: bgColor }}
                 onClick={() => handleCellClick(r, c)}
               >
                 {clueStart && (
@@ -185,11 +222,12 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
                 <input
                   ref={el => { if (inputRefs.current[r]) inputRefs.current[r][c] = el as HTMLInputElement; }}
                   type="text"
-                  value={gridValues[r][c]}
+                  value={solvedState ? solvedState.char : gridValues[r][c]}
                   onChange={(e) => handleChange(e, r, c)}
                   onKeyDown={(e) => handleKeyDown(e, r, c)}
                   onFocus={() => { if (!selected) setSelectedCell({r, c}); }}
-                  className="w-full h-full text-center text-lg sm:text-xl font-bold bg-transparent outline-none p-0 border-none uppercase focus:ring-0"
+                  readOnly={!!solvedState}
+                  className={`w-full h-full text-center text-lg sm:text-xl font-bold outline-none p-0 border-none uppercase focus:ring-0 ${solvedState ? 'bg-transparent text-gray-900 cursor-default' : 'bg-transparent text-black'}`}
                   maxLength={2}
                   dir="rtl"
                 />
