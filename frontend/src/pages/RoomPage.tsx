@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CrosswordGrid } from '../components/CrosswordGrid';
 import { RoomService } from '../services/RoomService';
 import { usePlayer } from '../domain/player/PlayerContext';
+import { GameEngine } from '../domain/game/GameEngine';
 import type { RoomState } from '../domain/game/GameEngine';
 
 const RoomPage: React.FC = () => {
@@ -52,6 +53,36 @@ const RoomPage: React.FC = () => {
     }
   };
 
+  const handleSubmitClue = (clue: import('../domain/puzzle').ClueMetadata, horizontal: boolean) => {
+    if (!room || !player) return;
+
+    // Import GameEngine on the fly or normally (assuming we import it above)
+    // We'll import GameEngine at the top
+    const gridRecord: Record<string, string> = {};
+    for (let r = 0; r < room.puzzle.rows; r++) {
+      for (let c = 0; c < room.puzzle.cols; c++) {
+        if (gridValues[r][c] && gridValues[r][c].trim() !== '') {
+          gridRecord[`${r},${c}`] = gridValues[r][c];
+        }
+      }
+    }
+
+    const playerState = {
+      playerId: player.id,
+      roomId: room.roomId,
+      grid: gridRecord
+    };
+
+    // Need to use GameEngine.submitClue. We'll fix the import.
+    const submission = GameEngine.submitClue(playerState, clue, horizontal, room);
+    if (!submission) {
+      alert("אנא מלא את כל התאים במילה זו לפני השליחה.");
+      return;
+    }
+
+    alert(`נשלח פתרון: ${submission.solution}\nמצב ביניים נרשם (Pending).`);
+  };
+
   if (!player) {
     return (
       <div className="p-4 text-center text-red-600 font-bold text-xl mt-10">
@@ -74,6 +105,7 @@ const RoomPage: React.FC = () => {
           puzzle={room.puzzle} 
           gridValues={gridValues}
           onGridChange={handleGridChange}
+          onSubmitClue={handleSubmitClue}
         />
       ) : (
         <p>טוען תשבץ...</p>

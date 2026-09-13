@@ -17,6 +17,7 @@
 | MS12 | Done | Room Creation |
 | MS13 | Done | Room Lobby |
 | MS14 | Done | Player Room State |
+| MS15 | Done | Clue Submission |
 
 ## Notes
 - Git repo initialized.
