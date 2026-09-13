@@ -14,6 +14,7 @@
 | MS09 | Done | Crossword Rendering |
 | MS10 | Done | Interactive Player Grid |
 | MS11 | Done | Player Identity |
+| MS12 | Done | Room Creation |
 
 ## Notes
 - Git repo initialized.
