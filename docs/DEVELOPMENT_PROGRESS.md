@@ -11,3 +11,4 @@
 ## Notes
 - Git repo initialized.
 - Environment verified.
+| MS06 | Done | Puzzle Data Model |

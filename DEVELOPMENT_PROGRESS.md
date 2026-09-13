@@ -1,7 +1,7 @@
-# Development Progress
+﻿# Development Progress
 
 ## Current Milestone
-MileStone08
+MileStone14-26 (Domain Logic)
 
 ## Status
 IN_PROGRESS
@@ -20,7 +20,7 @@ Merge feature/MileStone06-08 to develop and proceed to MileStone09.
 - [x] Local Run Orchestrator (MileStone05)
 - [x] Puzzle Data Model (MileStone06)
 - [x] Puzzle Processing Adapter (MileStone07)
-- [x] Clue Calculation Engine (MileStone08)
+- [x] Clue Calculation Engine (MileStone14-26 (Domain Logic))
 
 ## In Progress
 - [ ] Crossword Rendering (MileStone09)
