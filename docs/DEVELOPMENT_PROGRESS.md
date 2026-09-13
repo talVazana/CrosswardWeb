@@ -1,5 +1,8 @@
 # Development Progress
 
+**TODO / Tech Debt:**
+- The original crossword image is currently hardcoded to `a.jpg` in the `RoomPage` and `AdminRoomPage`. This must be removed and replaced with the actual uploaded image URL from Firebase Storage in MS25/MS26.
+
 | Milestone | Status | Description |
 |-----------|--------|-------------|
 | MS01 | Done | Environment Discovery |

@@ -1,4 +1,4 @@
-import { ClueMetadata, MatrixValue, PuzzleSchema } from '../puzzle';
+import type { ClueMetadata, MatrixValue, PuzzleSchema } from '../puzzle';
 
 export type PlayerId = string;
 export type RoomId = string;

@@ -156,7 +156,7 @@ const RoomPage: React.FC = () => {
 
       {room && gridValues.length > 0 ? (
         <div className="flex flex-col md:flex-row gap-6 items-start w-full max-w-5xl">
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto bg-white/90 p-4 rounded-xl shadow-lg border border-blue-100">
             <CrosswordGrid 
               puzzle={room.puzzle} 
               gridValues={gridValues}
@@ -164,11 +164,18 @@ const RoomPage: React.FC = () => {
               onSubmitClue={handleSubmitClue}
               onRevealClue={handleRevealClue}
               roomState={room}
+              currentPlayerId={player.id}
             />
           </div>
           
-          <div className="w-full md:w-64 p-4 border rounded bg-white shadow self-start">
-            <h2 className="font-bold text-xl mb-4 border-b pb-2">ניקוד (Scores)</h2>
+          <div className="w-full md:w-80 flex flex-col gap-4 self-start">
+            <div className="p-4 border rounded-xl bg-white/90 shadow-lg border-blue-100">
+              <h2 className="font-bold text-xl mb-4 border-b pb-2 text-blue-900">תמונת מקור</h2>
+              <img src="/a.jpg" alt="Original Crossword" className="w-full h-auto rounded border border-gray-200" />
+            </div>
+
+            <div className="p-4 border rounded-xl bg-white/90 shadow-lg border-blue-100">
+              <h2 className="font-bold text-xl mb-4 border-b pb-2 text-blue-900">ניקוד (Scores)</h2>
             {Object.keys(room.playerScores).length === 0 ? (
               <p className="text-gray-500">עדיין אין ניקוד.</p>
             ) : (
@@ -181,6 +188,7 @@ const RoomPage: React.FC = () => {
                 ))}
               </ul>
             )}
+            </div>
           </div>
         </div>
       ) : (

@@ -27,7 +27,31 @@ const AdminRoomPage: React.FC = () => {
     
     // For admin, we could load authoritative solutions into grid
     const emptyGrid = Array(r.puzzle.rows).fill(null).map(() => Array(r.puzzle.cols).fill(''));
-    // Could fill emptyGrid with drafts/auth solutions here
+    const adminDrafts = RoomService.getAdminDrafts(roomId);
+    
+    // Fill grid with authoritative solutions and drafts
+    const populate = (dict: Record<string, string>) => {
+      for (const key in dict) {
+        const [clueNumStr, isHorizStr] = key.split('_');
+        const clueNum = parseInt(clueNumStr);
+        const isHoriz = isHorizStr === 'true';
+        const clue = r.puzzle.clues.find(c => c.clue_number === clueNum && (isHoriz ? c.horizontal : c.vertical));
+        if (clue) {
+          const length = GameEngine.getClueLength(r.puzzle, clue.row, clue.col, isHoriz);
+          for (let i = 0; i < length; i++) {
+            const row = isHoriz ? clue.row : clue.row + i;
+            const col = isHoriz ? clue.col - i : clue.col;
+            if (dict[key][i] && dict[key][i] !== ' ') {
+              emptyGrid[row][col] = dict[key][i];
+            }
+          }
+        }
+      }
+    };
+    
+    populate(r.authoritativeSolutions);
+    populate(adminDrafts);
+    
     setGridValues(emptyGrid);
   }, [roomId, navigate]);
 
@@ -80,6 +104,21 @@ const AdminRoomPage: React.FC = () => {
     if (s) s.status = 'APPROVED';
     RoomService.saveSubmissions(room.roomId, subs);
     setSubmissions(subs);
+
+    // Update grid
+    const length = GameEngine.getClueLength(newRoom.puzzle, sub.clueNumber, 0, sub.horizontal); // wait, need to find the clue row/col!
+    const clue = newRoom.puzzle.clues.find(c => c.clue_number === sub.clueNumber && (sub.horizontal ? c.horizontal : c.vertical));
+    if (clue) {
+      const realLength = GameEngine.getClueLength(newRoom.puzzle, clue.row, clue.col, sub.horizontal);
+      const newGrid = [...gridValues];
+      for (let i = 0; i < realLength; i++) {
+        const r = sub.horizontal ? clue.row : clue.row + i;
+        const c = sub.horizontal ? clue.col - i : clue.col;
+        newGrid[r] = [...newGrid[r]];
+        newGrid[r][c] = sub.solution[i] || '';
+      }
+      setGridValues(newGrid);
+    }
   };
 
   const handleDecline = (sub: Submission) => {
@@ -177,9 +216,14 @@ const AdminRoomPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        <div className="p-4 border rounded-xl bg-white/90 shadow-lg border-blue-100 mt-6">
+          <h2 className="font-bold text-lg mb-2 text-blue-900">תמונת מקור</h2>
+          <img src="/a.jpg" alt="Original Crossword" className="w-full h-auto rounded border border-gray-200" />
+        </div>
       </div>
       
-      <div className="flex-1">
+      <div className="flex-1 bg-white/90 p-4 rounded-xl shadow-lg border border-blue-100 overflow-auto">
         <CrosswordGrid 
           puzzle={room.puzzle}
           gridValues={gridValues}

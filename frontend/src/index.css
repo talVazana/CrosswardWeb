@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #1d4ed8;
+  --color-primary-light: #60a5fa;
+  --color-primary-dark: #1e3a8a;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7,6 +13,27 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: url('/crossword_bg.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-color: #eff6ff; /* blue-50 */
+  color: #1e3a8a; /* blue-900 */
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105;
+}
+
+.btn-secondary {
+  @apply bg-blue-100 text-blue-800 font-bold py-2 px-6 rounded-lg shadow hover:bg-blue-200 transition-colors duration-200 transform hover:scale-105;
 }
 
 code {

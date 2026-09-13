@@ -9,11 +9,12 @@ interface CrosswordGridProps {
   onSubmitClue?: (clue: ClueMetadata, horizontal: boolean) => void;
   onRevealClue?: (clue: ClueMetadata, horizontal: boolean) => void;
   roomState?: import('../domain/game/GameEngine').RoomState;
+  currentPlayerId?: string;
 }
 
 type Direction = 'horizontal' | 'vertical';
 
-export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues, onGridChange, onSubmitClue, onRevealClue, roomState }) => {
+export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues, onGridChange, onSubmitClue, onRevealClue, roomState, currentPlayerId }) => {
 
   
   const [selectedCell, setSelectedCell] = useState<{r: number, c: number} | null>(null);
@@ -22,6 +23,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
 
   const inputRefs = useRef<HTMLInputElement[][]>([]);
   const [solvedCells, setSolvedCells] = useState<Record<string, { winnerId: string, char: string }>>({});
+  const [lockedCells, setLockedCells] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     inputRefs.current = Array(puzzle.rows).fill(null).map(() => Array(puzzle.cols).fill(null));
@@ -30,6 +32,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
   useEffect(() => {
     if (!roomState) return;
     const newSolved: Record<string, { winnerId: string, char: string }> = {};
+    const newLocked: Record<string, boolean> = {};
     
     for (const key in roomState.solvedClues) {
       const solved = roomState.solvedClues[key];
@@ -40,12 +43,43 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
       for (let i = 0; i < length; i++) {
         const r = solved.horizontal ? clue.row : clue.row + i;
         const c = solved.horizontal ? clue.col - i : clue.col;
-        // Don't overwrite if already solved by someone else? Actually it doesn't matter much.
         newSolved[`${r},${c}`] = { winnerId: solved.winnerId, char: solved.solution[i] };
+        
+        if (currentPlayerId) {
+          const isWinner = solved.winnerId === currentPlayerId;
+          const gotOnePoint = roomState.playerOnePointClues[currentPlayerId]?.includes(key);
+          const hasRevealed = roomState.revealedClues[currentPlayerId]?.includes(key);
+          if (isWinner || gotOnePoint || hasRevealed) {
+            newLocked[`${r},${c}`] = true;
+          }
+        } else {
+          // If no currentPlayerId (like Admin view), maybe lock if it's authoritative?
+          // Actually admin shouldn't be locked out of editing drafts.
+        }
       }
     }
+    
+    // Also check revealed clues for current player (even if not solved by anyone)
+    if (currentPlayerId && roomState.revealedClues[currentPlayerId]) {
+      for (const key of roomState.revealedClues[currentPlayerId]) {
+        const [clueNumStr, isHorizStr] = key.split('_');
+        const clueNum = parseInt(clueNumStr);
+        const isHoriz = isHorizStr === 'true';
+        const clue = puzzle.clues.find(c => c.clue_number === clueNum && (isHoriz ? c.horizontal : c.vertical));
+        if (clue) {
+          const length = GameEngine.getClueLength(puzzle, clue.row, clue.col, isHoriz);
+          for (let i = 0; i < length; i++) {
+            const r = isHoriz ? clue.row : clue.row + i;
+            const c = isHoriz ? clue.col - i : clue.col;
+            newLocked[`${r},${c}`] = true;
+          }
+        }
+      }
+    }
+
     setSolvedCells(newSolved);
-  }, [roomState, puzzle]);
+    setLockedCells(newLocked);
+  }, [roomState, puzzle, currentPlayerId]);
 
   const isBlocked = (r: number, c: number) => puzzle.matrix[r][c] === 0;
 
@@ -180,6 +214,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
         style={{ 
           gridTemplateColumns: `repeat(${puzzle.cols}, minmax(0, 1fr))` 
         }}
+        dir="ltr"
       >
         {puzzle.matrix.map((row, r) => (
           row.map((cellType, c) => {
@@ -208,6 +243,9 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
 
             const bgColor = solvedState ? getPlayerColor(solvedState.winnerId) : selected ? '#fef08a' : highlighted ? '#dbeafe' : '#ffffff';
 
+            const isLocked = lockedCells[`${r},${c}`];
+            const displayChar = isLocked && solvedState ? solvedState.char : gridValues[r][c];
+
             return (
               <div 
                 key={`${r}-${c}`} 
@@ -223,12 +261,12 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({ puzzle, gridValues
                 <input
                   ref={el => { if (inputRefs.current[r]) inputRefs.current[r][c] = el as HTMLInputElement; }}
                   type="text"
-                  value={solvedState ? solvedState.char : gridValues[r][c]}
+                  value={displayChar}
                   onChange={(e) => handleChange(e, r, c)}
                   onKeyDown={(e) => handleKeyDown(e, r, c)}
                   onFocus={() => { if (!selected) setSelectedCell({r, c}); }}
-                  readOnly={!!solvedState}
-                  className={`w-full h-full text-center text-lg sm:text-xl font-bold outline-none p-0 border-none uppercase focus:ring-0 ${solvedState ? 'bg-transparent text-gray-900 cursor-default' : 'bg-transparent text-black'}`}
+                  readOnly={!!isLocked}
+                  className={`w-full h-full text-center text-lg sm:text-xl font-bold outline-none p-0 border-none uppercase focus:ring-0 ${isLocked ? 'bg-transparent text-gray-900 cursor-default' : 'bg-transparent text-black'}`}
                   maxLength={2}
                   dir="rtl"
                 />

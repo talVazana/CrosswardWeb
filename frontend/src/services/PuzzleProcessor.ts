@@ -1,4 +1,5 @@
-import { PuzzleSchema, validatePuzzle } from '../domain/puzzle';
+import { validatePuzzle } from '../domain/puzzle';
+import type { PuzzleSchema } from '../domain/puzzle';
 
 export interface PuzzleProcessor {
   processImage(imageBlob: Blob): Promise<PuzzleSchema>;
@@ -21,7 +22,7 @@ export class MockPuzzleProcessor implements PuzzleProcessor {
 }
 
 export class RenderPuzzleProcessor implements PuzzleProcessor {
-  constructor(private url: string, private timeoutMs: number = 10000) {}
+  constructor(private url: string, private timeoutMs: number = 60000) {}
 
   async processImage(imageBlob: Blob): Promise<PuzzleSchema> {
     const controller = new AbortController();
